@@ -7,6 +7,9 @@ const SpreadsheetApp = () => {
 
   useEffect(() => {
     const xspreadsheet = window.x_spreadsheet || window.xspreadsheet;
+    if (spreadsheetRef.current?.children.length > 0) {
+    spreadsheetRef.current.innerHTML = "";
+    }
     const s = xspreadsheet(spreadsheetRef.current, { showToolbar: true });
     setSpreadsheet(s);
   }, []);
@@ -19,7 +22,11 @@ const SpreadsheetApp = () => {
       const data = new Uint8Array(evt.target.result);
       const wb = window.XLSX.read(data, { type: "array" });
       const jsonData = stox(wb);
-      spreadsheet.loadData(jsonData);
+      if (spreadsheet) {
+        spreadsheet.loadData(jsonData);
+        } else {
+        console.warn("Spreadsheet not initialized yet.");
+      }
     };
 
     reader.readAsArrayBuffer(file);
@@ -30,6 +37,28 @@ const SpreadsheetApp = () => {
     const wb = xtos(json);
     window.XLSX.writeFile(wb, "exported.xlsx");
   };
+
+  const process = () => {   // Assuming you want to copy the value from column C to column D
+    if (!spreadsheet) return;
+
+    const data = spreadsheet.getData();
+
+    const updatedData = data.map(sheet => {
+        const newRows = { ...sheet.rows };
+
+        Object.keys(newRows).forEach(rowIndex => {
+        const row = newRows[rowIndex];
+        if (row && row.cells && row.cells[2]) {  // index 2 corresponds to column C
+            const cellA = row.cells[2].text;
+            row.cells[3] = { ...row.cells[3], text: cellA }; // index 3 corresponds to column D
+        }
+        });
+
+        return { ...sheet, rows: newRows };
+    });
+
+    spreadsheet.loadData(updatedData);
+    };
 
   return (
     <div>
@@ -44,11 +73,11 @@ const SpreadsheetApp = () => {
         onClick={handleExport}>
         Export
       </button>
-      <button>process</button>
+      <button onClick={process} >process</button>
 
       <div
         ref={spreadsheetRef}
-        style={{ height: "500px" }}
+        style={{ height: "100px" }}
       />
     </div>
   );
