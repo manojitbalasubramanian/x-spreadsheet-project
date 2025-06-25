@@ -1,3 +1,5 @@
+// https://github.com/SheetJS/sheetjs/blob/github/demos/xspreadsheet/xlsxspread.js
+// clone from the above repo.
 export function stox(wb) {
   const out = [];
   wb.SheetNames.forEach(name => {

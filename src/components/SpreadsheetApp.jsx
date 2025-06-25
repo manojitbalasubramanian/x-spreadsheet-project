@@ -14,14 +14,14 @@ const SpreadsheetApp = () => {
     setSpreadsheet(s);
   }, []);
 
-  const handleFile = (e) => {
+  const handleFile = (e) => {  // helps to upload .xls or .xlsx file
     const file = e.target.files[0];
     const reader = new FileReader();
 
     reader.onload = (evt) => {
       const data = new Uint8Array(evt.target.result);
       const wb = window.XLSX.read(data, { type: "array" });
-      const jsonData = stox(wb);
+      const jsonData = stox(wb);   // stox is imported from utils
       if (spreadsheet) {
         spreadsheet.loadData(jsonData);
         } else {
@@ -32,9 +32,9 @@ const SpreadsheetApp = () => {
     reader.readAsArrayBuffer(file);
   };
 
-  const handleExport = () => {
+  const handleExport = () => {  // export and save as .xlsx 
     const json = spreadsheet.getData();
-    const wb = xtos(json);
+    const wb = xtos(json);  // xtos is imported from utils
     window.XLSX.writeFile(wb, "exported.xlsx");
   };
 
@@ -57,7 +57,7 @@ const SpreadsheetApp = () => {
         return { ...sheet, rows: newRows };
     });
 
-    spreadsheet.loadData(updatedData);
+    spreadsheet.loadData(updatedData);  // rendering the choosen file data
     };
 
   return (
